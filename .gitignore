@@ -1,0 +1,44 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[oc]
+*.pyd
+build/
+dist/
+wheels/
+*.egg-info/
+.eggs/
+
+# ── Virtual environment ────────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+
+# ── Environment / secrets ──────────────────────────────────────────────────────
+.env
+.flaskenv
+
+# ── Database files ─────────────────────────────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+
+# ── Alembic ────────────────────────────────────────────────────────────────────
+# Keep migrations/ tracked — only ignore local override configs if any
+alembic.ini.local
+
+# ── Logs & coverage ───────────────────────────────────────────────────────────
+*.log
+.coverage
+htmlcov/
+.pytest_cache/
+
+# ── IDE / Editor ──────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
