@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, redirect
 from app.models import URL, Click, db
-from app.extensions import redis_client
+from app.extensions import redis_client, limiter, get_rate_limit
 import random
 import string
 
@@ -17,8 +17,11 @@ def generate_unique_code():
         if not URL.query.filter_by(short_code=code).first():
             return code
 
+
 @shortener_bp.route("/shorten", methods=["POST"])
+@limiter.limit(get_rate_limit)
 def shorten_url():
+
     data = request.get_json()
 
     if not data:
@@ -43,6 +46,7 @@ def shorten_url():
     return jsonify({"short_url": short_url, "code": code}), 201
 
 @shortener_bp.route("/<code>", methods=["GET"])
+@limiter.limit(get_rate_limit)
 def redirect_url(code):
     cached_url = redis_client.get(code)
     cached_id  = redis_client.get(f"{code}:id")

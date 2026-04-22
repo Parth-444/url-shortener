@@ -3,7 +3,7 @@ from flask import jsonify, request
 from flask.blueprints import Blueprint
 from sqlalchemy import func
 from datetime import timezone, timedelta
-
+from app.extensions import limiter, get_rate_limit
 IST = timezone(timedelta(hours=5, minutes=30))
 
 def to_ist(dt):
@@ -13,6 +13,7 @@ def to_ist(dt):
 analytics_bp = Blueprint("analytics", __name__)
 
 @analytics_bp.route("/stats/<short_code>", methods=["GET"])
+@limiter.limit(get_rate_limit)
 def get_stats(short_code):
     url = URL.query.filter_by(short_code=short_code).first()
 
@@ -37,7 +38,7 @@ def get_stats(short_code):
     )
 
     total_days       = cpd_query.count()
-    total_pages      = max(1, -(-total_days // per_page))  # ceiling division
+    total_pages      = max(1, -(-total_days // per_page))  
     clicks_per_day_rows = cpd_query.limit(per_page).offset(offset).all()
     clicks_per_day   = [{"date": str(row[0]), "clicks": row[1]} for row in clicks_per_day_rows]
 
