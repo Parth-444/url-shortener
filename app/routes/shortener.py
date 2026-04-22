@@ -21,7 +21,24 @@ def generate_unique_code():
 @shortener_bp.route("/shorten", methods=["POST"])
 @limiter.limit(get_rate_limit)
 def shorten_url():
+    """
+    Shorten a long URL.
 
+    Headers:
+        X-API-KEY: str   # valid API key, required
+
+    Expects a JSON body:
+        {
+            "long_url": str   # the URL to shorten, required
+        }
+
+    Returns:
+        201  { "short_url": str, "code": str }
+        400  if body is missing or long_url is absent
+        401  if API key is missing or invalid
+        429  if rate limit exceeded
+        500  if the URL could not be saved
+    """
     data = request.get_json()
 
     if not data:
@@ -48,6 +65,17 @@ def shorten_url():
 @shortener_bp.route("/<code>", methods=["GET"])
 @limiter.limit(get_rate_limit)
 def redirect_url(code):
+    """
+    Redirect to the original URL for a given short code.
+
+    URL parameter:
+        code: str   # the short code to look up, required
+
+    Returns:
+        302  redirect to the original URL
+        404  if the short code does not exist
+        429  if rate limit exceeded (10 per minute per IP)
+    """
     cached_url = redis_client.get(code)
     cached_id  = redis_client.get(f"{code}:id")
 

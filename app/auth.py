@@ -11,6 +11,22 @@ auth_bp = Blueprint("auth_bp", __name__)
 
 @auth_bp.route("/generate-key", methods=["POST"])
 def generate_key():
+    """
+    Generate a new API key for a user.
+
+    Expects a JSON body:
+        {
+            "username": str,   # unique username, required
+            "tier":     str    # access tier, required — must be "free" or "premium"
+        }
+
+    Returns:
+        201  { "key": str, "tier": str, "user_name": str }
+        400  if body is missing, or username/tier is absent
+        400  if tier is not "free" or "premium"
+        409  if username is already registered
+        500  if the key could not be saved
+    """
     data = request.get_json()
      
     if not data:
