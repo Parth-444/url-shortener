@@ -2,6 +2,7 @@ from flask import g, request, jsonify, Blueprint
 from app.extensions import redis_client
 from app.models import API, db
 import secrets
+from sqlalchemy.exc import IntegrityError
 
 EXEMPT_ENDPOINTS = {"shortener.redirect_url", "auth_bp.generate_key"}
 
@@ -49,6 +50,9 @@ def generate_key():
     try:
         db.session.add(API(user_name=username, key=generated_key, tier=tier, is_active=True))
         db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({"error": "User name already exists"}), 409
     except Exception:
         db.session.rollback()
         return jsonify({"error": "failed to generate key, please try again"}), 500
@@ -62,6 +66,9 @@ def generate_key():
 
 def verify_api_key():
     if request.endpoint in EXEMPT_ENDPOINTS:
+        return
+    
+    if request.routing_exception is not None:
         return
 
     api_key = request.headers.get("X-API-KEY")

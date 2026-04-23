@@ -2,8 +2,9 @@ import redis
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask import g
+from app.config import Config
 
-redis_client = redis.Redis(host="localhost", port=6379, decode_responses=True)
+redis_client = redis.Redis.from_url(Config.REDIS_URL, decode_responses=True)
 
 def get_api_key_identity():
     user = g.get("current_user")
