@@ -59,7 +59,7 @@ def shorten_url():
         db.session.rollback()
         return jsonify({"error": "failed to save URL, please try again"}), 500
 
-    short_url = f"http://127.0.0.1:5000/{code}"
+    short_url = f"{request.host_url}{code}"
     return jsonify({"short_url": short_url, "code": code}), 201
 
 @shortener_bp.route("/<code>", methods=["GET"])
